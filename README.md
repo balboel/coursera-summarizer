@@ -15,7 +15,7 @@ A Chrome extension that injects a summarization tool into Coursera video pages, 
 
 1.  Download the repository files (either clone it or download the ZIP and extract it).
     ```bash
-    git clone https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git
+    git clone https://github.com/balboel/coursera-summarizer.git
     ```
 
 2.  Open Google Chrome, type `chrome://extensions` in the address bar, and press Enter.
