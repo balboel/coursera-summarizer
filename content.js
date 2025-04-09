@@ -4,7 +4,7 @@
  *
  * Injects the summarizer UI into Coursera video pages, handles UI interactions
  * (drag, resize, minimize, theme), extracts video transcripts, calls the
- * OpenRouter API for summarization, and displays the results.
+ * OpenRouter API for summarization, displays the results, and allows saving summaries.
  */
 (function() {
     'use strict';
@@ -17,17 +17,22 @@
         WINDOW_SIZE: 'windowSize',
         WINDOW_STATE: 'windowState',
         THEME: 'theme',
+        SAVED_SUMMARIES: 'savedSummaries' // Key for saved summaries
     };
     const API_ENDPOINT = "https://openrouter.ai/api/v1/chat/completions";
     const MODEL_NAME = "google/gemini-2.0-flash-thinking-exp:free"; // Or choose another model
     const TRANSCRIPT_CONTAINER_SELECTOR = 'div.phrases';
     const PHRASE_SELECTOR = 'div.rc-Phrase';
-    const GITHUB_REPO_URL = 'https://github.com/YOUR_USERNAME/YOUR_REPO_NAME'; 
-    const EXTENSION_NAME = 'Coursera Summarizer'; 
+    const GITHUB_REPO_URL = 'https://github.com/YOUR_USERNAME/YOUR_REPO_NAME'; // TODO: Update this!
+    const EXTENSION_NAME = 'Coursera Summarizer'; // TODO: Update if needed
+
+    // --- Global Variables ---
+    let currentRawSummary = null; // To hold the latest generated summary before saving
 
     // --- Prevent Multiple Injections ---
     if (document.getElementById(WINDOW_ID)) {
         console.log('Coursera Summarizer: Already injected.');
+        // Optionally, bring the existing window to the front or notify the user
         return;
     }
     console.log('Coursera Summarizer: Initializing...');
@@ -45,7 +50,10 @@
             </div>
         </div>
         <div id="coursera-summarizer-content">
-            <button id="coursera-summarizer-button">Summarize Transcript</button>
+            <div class="cs-button-row"> <!-- Button grouping -->
+                 <button id="coursera-summarizer-button">Summarize Transcript</button>
+                 <button id="coursera-summarizer-save-button" style="display: none;" title="Save this summary">Save Summary</button> <!-- Save button, initially hidden -->
+            </div>
             <div id="coursera-summarizer-status">Ready. Select 'Summarize Transcript'.</div>
             <div id="coursera-summarizer-output"></div>
         </div>
@@ -57,13 +65,13 @@
     const header = document.getElementById('coursera-summarizer-header');
     const minimizeBtn = document.getElementById('coursera-summarizer-minimize-btn');
     const themeBtn = document.getElementById('coursera-summarizer-theme-btn');
-    const contentDiv = document.getElementById('coursera-summarizer-content'); // Used? Maybe remove if not needed directly
     const summarizeButton = document.getElementById('coursera-summarizer-button');
+    const saveSummarizeButton = document.getElementById('coursera-summarizer-save-button'); // Reference for Save Button
     const statusArea = document.getElementById('coursera-summarizer-status');
     const outputArea = document.getElementById('coursera-summarizer-output');
 
     // --- Basic Element Check ---
-    if (!header || !minimizeBtn || !themeBtn || !summarizeButton || !statusArea || !outputArea) {
+    if (!header || !minimizeBtn || !themeBtn || !summarizeButton || !saveSummarizeButton || !statusArea || !outputArea) {
         console.error('Coursera Summarizer: Failed to find critical window elements. Aborting.');
         summarizerWindow.remove(); // Clean up injected div
         return;
@@ -225,7 +233,6 @@
         {
             isResizing = true;
             summarizerWindow.classList.add('resizing'); // Disable transitions during resize
-            // console.log('Resize potentially started'); // Optional debug
         }
     });
 
@@ -234,7 +241,6 @@
         if (isResizing) {
             isResizing = false;
             summarizerWindow.classList.remove('resizing'); // Re-enable transitions
-            // console.log('Resize ended'); // Optional debug
             saveWindowSize(); // Save size immediately on mouse up after resize
         }
     });
@@ -288,7 +294,6 @@
         }
 
         console.log(`Coursera Summarizer: Transcript extracted (${transcriptText.length} chars).`);
-        // console.log(`Coursera Summarizer: Transcript start: ${transcriptText.substring(0, 200)}...`); // Optional debug
         statusArea.textContent = 'Transcript extracted successfully.';
         return transcriptText;
     }
@@ -314,8 +319,6 @@
                 { role: "system", content: systemPrompt },
                 { role: "user", content: userPrompt }
             ],
-            // max_tokens: 500, // Optional: Adjust as needed
-            // temperature: 0.6, // Optional: Adjust for creativity vs consistency
         };
 
         try {
@@ -344,8 +347,6 @@
             }
 
             const data = await response.json();
-            // console.log('Coursera Summarizer: API Response Data:', data); // Optional debug
-
             const summary = data.choices?.[0]?.message?.content?.trim();
 
             if (!summary) {
@@ -375,8 +376,7 @@
         if (typeof marked === 'object' && typeof marked.parse === 'function') {
             try {
                console.log("Coursera Summarizer: Formatting summary using marked.parse().");
-               // Ensure options prevent raw HTML injection from the LLM potentially
-               const htmlSummary = marked.parse(markdownText, { sanitize: false, headerIds: false, mangle: false }); // Adjust options as needed
+               const htmlSummary = marked.parse(markdownText, { sanitize: false, headerIds: false, mangle: false });
                return htmlSummary;
             } catch (parseError) {
                console.error("Coursera Summarizer: Error parsing Markdown:", parseError);
@@ -398,6 +398,11 @@
         outputArea.innerHTML = ''; // Clear previous output
         summarizeButton.disabled = true;
         statusArea.classList.add('loading');
+        // Reset Save button state
+        saveSummarizeButton.style.display = 'none';
+        saveSummarizeButton.disabled = true;
+        saveSummarizeButton.textContent = 'Save Summary';
+        currentRawSummary = null; // Clear previous summary
 
         chrome.storage.local.get(STORAGE_KEYS.API_KEY, async (result) => {
             const apiKey = result[STORAGE_KEYS.API_KEY];
@@ -428,32 +433,97 @@
 
                 // 3. Render and Display Summary
                 if (rawSummary) {
+                    currentRawSummary = rawSummary; // <-- Store the raw summary for saving
                     const htmlSummary = renderMarkdown(rawSummary);
                     outputArea.innerHTML = htmlSummary;
                     statusArea.textContent = 'Summary generated!';
-                    console.log("Coursera Summarizer: Summary displayed.");
+                    saveSummarizeButton.style.display = 'inline-block'; // <-- Show the save button
+                    saveSummarizeButton.disabled = false;               // <-- Enable the save button
+                    console.log("Coursera Summarizer: Summary displayed, Save button enabled.");
                 } else {
                     // This case should ideally be handled by errors in callOpenRouterAPI
                     console.error("Coursera Summarizer: API call succeeded but returned no summary content.");
                     statusArea.textContent = 'Error: Received empty summary from API.';
                     outputArea.innerHTML = '<p>The API returned an empty response.</p>';
+                    // Ensure save button remains hidden/disabled
+                    saveSummarizeButton.style.display = 'none';
+                    currentRawSummary = null;
                 }
 
             } catch (error) {
                 // Errors during extraction or API call are caught here.
                 // User-facing messages should already be set by the failing function.
                 console.error("Coursera Summarizer: Summarization process failed.", error);
-                // No need to set status/output again, it's done in the failing function.
+                 // Ensure save button remains hidden/disabled
+                saveSummarizeButton.style.display = 'none';
+                currentRawSummary = null;
             } finally {
-                // 4. Cleanup: Re-enable Button & Remove Loading Class
+                // 4. Cleanup: Re-enable Summarize Button & Remove Loading Class (if applicable)
                 summarizeButton.disabled = false;
                 statusArea.classList.remove('loading');
-                console.log('Coursera Summarizer: Summarize process finished (successfully or with errors).');
+                console.log('Coursera Summarizer: Summarize process finished.');
             }
         }); // End of chrome.storage.local.get callback
     }); // End of summarizeButton listener
 
-    console.log('Coursera Summarizer: Initialization complete.');
+    // --- Save Summary Button Action ---
+    saveSummarizeButton.addEventListener('click', async () => {
+        if (!currentRawSummary) {
+            console.error("Coursera Summarizer: Save Error - No summary content available.");
+            statusArea.textContent = "Error: Nothing to save.";
+            // Optionally briefly highlight the output area or provide clearer feedback
+            return;
+        }
+
+        const summaryData = {
+            id: `summary-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`, // Generate unique ID
+            timestamp: Date.now(),
+            url: window.location.href, // Capture the page URL
+            // title: document.title, // Optional: Capture page title - needs sanitization potentially
+            summary: currentRawSummary // Save the raw Markdown summary
+        };
+
+        saveSummarizeButton.disabled = true;
+        saveSummarizeButton.textContent = 'Saving...';
+        const originalStatus = statusArea.textContent; // Store original status
+        statusArea.textContent = 'Saving summary...';
+
+        try {
+            // 1. Get current saved summaries
+            const result = await chrome.storage.local.get([STORAGE_KEYS.SAVED_SUMMARIES]);
+            const summaries = result[STORAGE_KEYS.SAVED_SUMMARIES] || [];
+
+            // 2. Add the new summary
+            summaries.push(summaryData);
+
+            // 3. Save the updated array back to storage
+            await chrome.storage.local.set({ [STORAGE_KEYS.SAVED_SUMMARIES]: summaries });
+
+            console.log("Coursera Summarizer: Summary saved successfully.", summaryData);
+            statusArea.textContent = 'Summary saved!';
+            saveSummarizeButton.textContent = 'Saved ✓'; // Indicate success, keep disabled or re-enable after timeout
+
+            // Optionally re-enable after a short delay
+             setTimeout(() => {
+                // Check if the button text is still "Saved ✓" before resetting
+                if(saveSummarizeButton.textContent === 'Saved ✓'){
+                   saveSummarizeButton.disabled = false;
+                   saveSummarizeButton.textContent = 'Save Summary';
+                   statusArea.textContent = originalStatus; // Restore status
+                }
+            }, 2500);
+
+
+        } catch (error) {
+            console.error("Coursera Summarizer: Error saving summary:", error);
+            statusArea.textContent = `Error saving: ${error.message}`;
+            saveSummarizeButton.disabled = false; // Re-enable on error
+            saveSummarizeButton.textContent = 'Save Summary';
+        }
+    });
+
+
+    console.log('Coursera Summarizer: Initialization complete. Event listeners attached.');
 
 })(); // End of IIFE
 // --- END OF FILE content.js ---

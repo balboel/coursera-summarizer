@@ -1,0 +1,49 @@
+/* saved_summaries/saved_summaries.css */
+body { font-family: sans-serif; padding: 20px; background-color: #f4f4f4; }
+h1 { text-align: center; color: #333; margin-bottom: 20px; }
+#controls { margin-bottom: 20px; text-align: right; }
+button.danger { background-color: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; }
+button.danger:hover { background-color: #c82333; }
+#loadingStatus { text-align: center; color: #666; }
+#summariesContainer { display: grid; gap: 20px; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); } /* Example: Responsive grid */
+
+.summary-card {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    overflow: hidden; /* Contain elements */
+    display: flex;
+    flex-direction: column;
+}
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #ddd;
+    font-size: 0.85em;
+    color: #555;
+}
+.delete-button {
+    background: none;
+    border: none;
+    color: #dc3545;
+    font-size: 1.4em;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 5px;
+}
+.delete-button:hover { color: #a01320; }
+.card-body { padding: 15px; flex-grow: 1; }
+.card-url { font-size: 0.9em; margin-bottom: 10px; word-break: break-all; }
+.card-url a { color: #0056b3; text-decoration: none; }
+.card-url a:hover { text-decoration: underline; }
+.card-summary-content { font-size: 0.95em; line-height: 1.6; }
+/* Add styles for markdown elements (h2, ul, p, code) within .card-summary-content */
+.card-summary-content h2, .card-summary-content h3 { margin-top: 0.8em; margin-bottom: 0.4em; padding-bottom: 0.2em; border-bottom: 1px solid #eee;}
+.card-summary-content ul, .card-summary-content ol { padding-left: 1.5em; margin-bottom: 0.5em;}
+.card-summary-content p { margin-bottom: 0.5em; }
+.card-summary-content code { background-color: #e9ecef; padding: 0.1em 0.3em; border-radius: 3px; font-size: 0.9em;}
+.card-summary-content pre { background-color: #e9ecef; padding: 8px; border-radius: 4px; overflow-x: auto; }
