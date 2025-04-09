@@ -1,0 +1,374 @@
+/* --- START OF FILE popup.css --- */
+/**
+ * Coursera Summarizer - UI Styles
+ *
+ * Styles for the injected summarizer window, including light/dark themes,
+ * layout, controls, and states (minimized, resizing).
+ */
+
+/* Import Poppins Font (Ensure font files are in a 'fonts' folder relative to CSS) */
+@font-face {
+    font-family: "Poppins";
+    src: url('fonts/Poppins-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+}
+@font-face {
+    font-family: "Poppins";
+    src: url('fonts/Poppins-Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+}
+@font-face {
+    font-family: "Poppins";
+    src: url('fonts/Poppins-SemiBold.ttf') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+}
+/* Add Bold/Italic if needed */
+
+/* --- Base Variables & Theme Setup --- */
+:root {
+    /* Base Font */
+    --font-family-base: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --font-size-base: 14px;
+    --line-height-base: 1.5;
+
+    /* Light Mode Palette */
+    --bg-color-light: #ffffff;
+    --text-color-light: #24292e; /* Dark grey for text */
+    --header-bg-light: #f6f8fa; /* Slightly off-white */
+    --header-text-light: #24292e;
+    --border-color-light: #e1e4e8; /* Lighter border */
+    --accent-color-light: #0366d6; /* Standard blue */
+    --accent-text-light: #ffffff;
+    --button-hover-light: #005cc5;
+    --control-bg-light: #e1e4e8;
+    --control-hover-bg-light: #d1d5da;
+    --output-bg-light: #f9f9f9; /* Even lighter background for output */
+    --output-border-light: #eaecef;
+    --shadow-color-light: rgba(149, 157, 165, 0.2);
+
+    /* Dark Mode Palette */
+    --bg-color-dark: #1c2128; /* Dark background */
+    --text-color-dark: #c9d1d9; /* Light grey text */
+    --header-bg-dark: #2d333b; /* Slightly lighter dark */
+    --header-text-dark: #f0f6fc;
+    --border-color-dark: #444c56; /* Darker border */
+    --accent-color-dark: #58a6ff; /* Brighter blue for contrast */
+    --accent-text-dark: #1c2128; /* Use dark text on bright blue */
+    --button-hover-dark: #79b8ff;
+    --control-bg-dark: #444c56;
+    --control-hover-bg-dark: #586069;
+    --output-bg-dark: #22272e; /* Slightly different dark for output */
+    --output-border-dark: #3b424c;
+    --shadow-color-dark: rgba(0, 0, 0, 0.3);
+}
+
+/* Apply Theme Variables */
+.light-mode { color-scheme: light; } /* Inform browser for native elements */
+.dark-mode { color-scheme: dark; }
+
+#coursera-summarizer-window {
+    /* Theme Variables Mapping */
+    --bg-color: var(--bg-color-light);
+    --text-color: var(--text-color-light);
+    --header-bg: var(--header-bg-light);
+    --header-text: var(--header-text-light);
+    --border-color: var(--border-color-light);
+    --accent-color: var(--accent-color-light);
+    --accent-text: var(--accent-text-light);
+    --button-hover: var(--button-hover-light);
+    --control-bg: var(--control-bg-light);
+    --control-hover-bg: var(--control-hover-bg-light);
+    --output-bg: var(--output-bg-light);
+    --output-border: var(--output-border-light);
+    --shadow-color: var(--shadow-color-light);
+
+    /* Positioning & Base Styles */
+    position: fixed;
+    top: 80px;
+    left: 80px;
+    width: 380px;
+    height: 480px;
+    min-width: 280px;
+    min-height: 200px;
+    max-height: 85vh; /* Prevent excessive height */
+    z-index: 2147483646; /* High z-index */
+
+    /* Appearance */
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 10px; /* Softer corners */
+    box-shadow: 0px 5px 20px var(--shadow-color);
+    font-family: var(--font-family-base);
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-base);
+
+    /* Layout & Behavior */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Needed for resize handle and content */
+    resize: both; /* Enable native resize */
+    transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, height 0.3s ease-in-out, width 0.3s ease-in-out; /* Smooth transitions */
+}
+
+.dark-mode#coursera-summarizer-window {
+    /* Override Theme Variables */
+    --bg-color: var(--bg-color-dark);
+    --text-color: var(--text-color-dark);
+    --header-bg: var(--header-bg-dark);
+    --header-text: var(--header-text-dark);
+    --border-color: var(--border-color-dark);
+    --accent-color: var(--accent-color-dark);
+    --accent-text: var(--accent-text-dark);
+    --button-hover: var(--button-hover-dark);
+    --control-bg: var(--control-bg-dark);
+    --control-hover-bg: var(--control-hover-bg-dark);
+    --output-bg: var(--output-bg-dark);
+    --output-border: var(--output-border-dark);
+    --shadow-color: var(--shadow-color-dark);
+}
+
+/* Disable transitions during JS-detected resize */
+#coursera-summarizer-window.resizing {
+    transition: none !important;
+}
+
+/* Header Section */
+#coursera-summarizer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background-color: var(--header-bg);
+    color: var(--header-text);
+    border-bottom: 1px solid var(--border-color);
+    border-radius: 9px 9px 0 0; /* Match outer radius */
+    cursor: move;
+    flex-shrink: 0; /* Prevent shrinking */
+    user-select: none; /* Prevent text selection during drag */
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+#coursera-summarizer-header h3 {
+    margin: 0;
+    font-size: 0.95rem; /* Slightly smaller */
+    font-weight: 600; /* SemiBold */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Header Controls (Minimize/Maximize/Theme Buttons) */
+#coursera-summarizer-controls {
+    display: flex;
+    gap: 8px; /* Space between buttons */
+}
+
+#coursera-summarizer-controls button {
+    background: none; /* Transparent background */
+    border: 1px solid transparent; /* Placeholder */
+    color: var(--text-color); /* Use standard text color */
+    opacity: 0.7;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    font-size: 16px; /* Slightly larger icons */
+    line-height: 20px; /* Center content */
+    text-align: center;
+    padding: 0;
+    cursor: pointer;
+    transition: background-color 0.2s ease, opacity 0.2s ease, color 0.2s ease;
+    flex-shrink: 0;
+}
+
+#coursera-summarizer-controls button:hover {
+    background-color: var(--control-hover-bg);
+    opacity: 1;
+}
+
+/* Control Button Icons (Using Unicode) */
+#coursera-summarizer-minimize-btn::after { content: '−'; } /* Minus sign */
+#coursera-summarizer-theme-btn::after { content: '◐'; } /* Moon symbol */
+.dark-mode #coursera-summarizer-theme-btn::after { content: '☀️'; } /* Sun symbol */
+
+/* Content Area */
+#coursera-summarizer-content {
+    padding: 15px;
+    flex-grow: 1; /* Take remaining space */
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Space between elements */
+    overflow-y: auto; /* Allow scrolling if content overflows */
+    background-color: var(--bg-color);
+    transition: background-color 0.3s ease, opacity 0.3s ease-in-out, visibility 0s linear 0s;
+}
+
+/* Summarize Button */
+#coursera-summarizer-button {
+    background-color: var(--accent-color);
+    color: var(--accent-text);
+    border: none;
+    padding: 8px 16px; /* Adjust padding */
+    border-radius: 6px; /* Softer corners */
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500; /* Medium */
+    align-self: flex-start; /* Align to the left */
+    transition: background-color 0.2s ease, opacity 0.2s ease;
+    flex-shrink: 0;
+}
+#coursera-summarizer-button:hover:not(:disabled) {
+    background-color: var(--button-hover);
+}
+#coursera-summarizer-button:disabled {
+    background-color: var(--control-bg);
+    color: var(--text-color);
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Status Area */
+#coursera-summarizer-status {
+    font-size: 0.85rem;
+    color: var(--text-color);
+    opacity: 0.8;
+    min-height: 1.2em; /* Prevent layout shift */
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 5px; /* Space between text and loader */
+    transition: color 0.3s ease;
+}
+
+/* Loading Indicator (Animated Dots) */
+#coursera-summarizer-status.loading::after {
+    content: ' .';
+    animation: dots 1.4s infinite;
+    display: inline-block;
+    vertical-align: bottom;
+    width: 1em; /* Reserve space */
+    text-align: left;
+}
+@keyframes dots {
+    0%, 20% { content: ' ●'; opacity: 0.4; }
+    40% { content: ' ●●'; opacity: 0.6; }
+    60% { content: ' ●●●'; opacity: 0.8; }
+    80%, 100% { content: ' ●●●'; opacity: 1; }
+}
+
+/* Output Area */
+#coursera-summarizer-output {
+    background-color: var(--output-bg);
+    color: var(--text-color);
+    border: 1px solid var(--output-border);
+    padding: 12px 15px;
+    border-radius: 6px;
+    line-height: 1.6; /* Better readability */
+    flex-grow: 1; /* Expand to fill space */
+    overflow-y: auto; /* Scroll long summaries */
+    min-height: 100px; /* Ensure it has some height */
+    font-size: 0.88rem; /* Slightly smaller for denser text */
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+/* Markdown Formatting within Output */
+#coursera-summarizer-output > *:first-child { margin-top: 0; }
+#coursera-summarizer-output > *:last-child { margin-bottom: 0; }
+#coursera-summarizer-output h1,
+#coursera-summarizer-output h2,
+#coursera-summarizer-output h3 {
+    margin-top: 1.2em;
+    margin-bottom: 0.6em;
+    font-weight: 600;
+    line-height: 1.3;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.3em;
+}
+#coursera-summarizer-output h2 { font-size: 1.2em; }
+#coursera-summarizer-output h3 { font-size: 1.1em; }
+#coursera-summarizer-output p { margin-bottom: 0.8em; }
+#coursera-summarizer-output ul,
+#coursera-summarizer-output ol {
+    margin-bottom: 0.8em;
+    padding-left: 1.8em;
+}
+#coursera-summarizer-output li { margin-bottom: 0.3em; }
+#coursera-summarizer-output code {
+    font-family: Consolas, monospace;
+    background-color: var(--control-bg);
+    padding: 0.2em 0.4em;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+#coursera-summarizer-output pre {
+    background-color: var(--control-bg);
+    padding: 10px;
+    border-radius: 4px;
+    overflow-x: auto;
+    margin-bottom: 0.8em;
+}
+#coursera-summarizer-output pre code {
+    background-color: transparent;
+    padding: 0;
+    border-radius: 0;
+    font-size: 1em;
+}
+#coursera-summarizer-output blockquote {
+    margin-left: 0;
+    padding-left: 1em;
+    border-left: 3px solid var(--border-color);
+    color: var(--text-color);
+    opacity: 0.85;
+    margin-bottom: 0.8em;
+}
+#coursera-summarizer-output a {
+    color: var(--accent-color);
+    text-decoration: none;
+}
+#coursera-summarizer-output a:hover {
+    text-decoration: underline;
+}
+.dark-mode #coursera-summarizer-output a { color: var(--accent-color-dark); }
+
+
+/* --- Minimized State --- */
+#coursera-summarizer-window.minimized {
+    height: auto !important; /* Override inline style */
+    width: 200px !important; /* Override inline style */
+    min-height: 0;
+    resize: none; /* Disable resize when minimized */
+    box-shadow: 0px 2px 8px var(--shadow-color); /* Less prominent shadow */
+}
+
+#coursera-summarizer-window.minimized #coursera-summarizer-content {
+    visibility: hidden;
+    opacity: 0;
+    padding: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: visibility 0s linear 0.3s, opacity 0.3s ease-in-out, max-height 0.3s ease-in-out;
+}
+
+/* Change minimize button to maximize symbol when minimized */
+#coursera-summarizer-window.minimized #coursera-summarizer-minimize-btn::after {
+     content: '□'; /* Use a square/maximize symbol */
+     font-weight: bold;
+}
+
+/* Style for options page status messages (assuming you add these classes in options.js) */
+#status { /* Assuming 'status' is the ID in options.html */
+  margin-top: 10px;
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  min-height: 1.5em; /* Prevent layout shifts */
+  transition: opacity 0.3s ease;
+}
+.status-success { background-color: #dbf6e0; color: #1e4620; border: 1px solid #a3cfbb; }
+.status-error { background-color: #fdecea; color: #611a15; border: 1px solid #f5c6cb; }
+.status-info { background-color: #e2f3fc; color: #0c5464; border: 1px solid #bee5eb; }
+
+/* --- END OF FILE popup.css --- */

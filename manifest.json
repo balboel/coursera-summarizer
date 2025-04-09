@@ -1,0 +1,35 @@
+{
+  "manifest_version": 3,
+  "name": "Coursera Video Summarizer",
+  "version": "0.3.0",
+  "description": "Summarizes Coursera video transcripts using OpenRouter API.",
+  
+  "permissions": [
+    "activeTab", 
+    "scripting",  
+    "storage" 
+  ],
+  "host_permissions": [
+    "https://*.coursera.org/*", 
+    "https://openrouter.ai/api/v1/chat/completions" 
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://*.coursera.org/learn/*/lecture/*", "https://*.coursera.org/learn/*/supplement/*"],
+      "js": ["marked.min.js","content.js"], 
+      "css": ["popup.css"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "fonts/Poppins-Medium.ttf",
+        "fonts/Poppins-Bold.ttf",
+        "fonts/Poppins-Italic.ttf",
+        "fonts/Poppins-BoldItalic.ttf"
+      ],
+      "matches": [ "https://*.coursera.org/*" ]
+    }
+  ],
+  "options_page": "options.html"
+}
