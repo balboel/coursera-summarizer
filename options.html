@@ -1,50 +1,52 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <title>Coursera Summarizer Options</title>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <style>
-        body {
-            font-family: sans-serif;
-            padding: 20px;
-            min-width: 400px; /* Give it some space */
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        input[type="password"], input[type="text"] { /* Allow text for visibility if needed */
-            width: 95%;
-            padding: 8px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        button {
-            padding: 10px 20px;
-            background-color: #0056d2;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        button:hover {
-            background-color: #0041a3;
-        }
-        #status {
-            margin-top: 15px;
-            font-weight: bold;
-            color: green;
-        }
+      body {
+        font-family: sans-serif;
+        padding: 20px;
+        min-width: 400px; /* Give it some space */
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+      input[type='password'],
+      input[type='text'] {
+        /* Allow text for visibility if needed */
+        width: 95%;
+        padding: 8px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+      button {
+        padding: 10px 20px;
+        background-color: #0056d2;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+      }
+      button:hover {
+        background-color: #0041a3;
+      }
+      #status {
+        margin-top: 15px;
+        font-weight: bold;
+        color: green;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <h1>Coursera Summarizer Settings</h1>
 
     <label for="apiKey">OpenRouter API Key:</label>
-    <input type="password" id="apiKey" name="apiKey" placeholder="Enter your sk-or-... key here">
+    <input type="password" id="apiKey" name="apiKey" placeholder="Enter your sk-or-... key here" />
 
     <button id="saveButton">Save Key</button>
 
@@ -54,10 +56,10 @@
 
     <script src="options.js"></script>
     <!-- Add this somewhere in options.html -->
-    <hr>
+    <hr />
     <h2>Manage Summaries</h2>
     <p>
-        <a href="../saved_summaries/saved_summaries.html" target="_blank" id="viewSummariesLink">View Saved Summaries</a>
+      <a href="../saved_summaries/saved_summaries.html" target="_blank" id="viewSummariesLink">View Saved Summaries</a>
     </p>
-</body>
+  </body>
 </html>
