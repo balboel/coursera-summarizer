@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saved Summaries - Coursera Summarizer</title>
+    <link rel="stylesheet" href="saved_summaries.css"> <!-- Link your CSS -->
+    <!-- Make sure marked.js is available -->
+    <script src="../marked.min.js"></script>
+</head>
+<body>
+    <h1>Saved Coursera Summaries</h1>
+    <div id="controls">
+        <button id="deleteAllButton" class="danger">Delete All Summaries</button>
+        <p id="loadingStatus">Loading summaries...</p>
+    </div>
+
+    <div id="summariesContainer">
+        <!-- Saved summaries will be dynamically added here -->
+        <div class="summary-card-placeholder" style="display: none;">
+             <!-- Template for a card -->
+             <div class="card-header">
+                 <span class="card-timestamp"></span>
+                 <button class="delete-button" title="Delete this summary">×</button>
+             </div>
+             <div class="card-body">
+                 <p class="card-url"><strong>Source:</strong> <a href="#" target="_blank" rel="noopener noreferrer"></a></p>
+                 <div class="card-summary-content">
+                     <!-- Rendered Markdown will go here -->
+                 </div>
+             </div>
+        </div>
+    </div>
+
+    <script src="saved_summaries.js"></script>
+</body>
+</html>
