@@ -22,7 +22,6 @@
     const MODEL_NAME = "google/gemini-2.0-flash-thinking-exp:free"; // Or choose another model
     const TRANSCRIPT_CONTAINER_SELECTOR = 'div.phrases';
     const PHRASE_SELECTOR = 'div.rc-Phrase';
-    const GITHUB_REPO_URL = 'https://github.com/YOUR_USERNAME/YOUR_REPO_NAME'; 
     const EXTENSION_NAME = 'Coursera Summarizer'; 
 
     // --- Prevent Multiple Injections ---
@@ -324,7 +323,6 @@
                 headers: {
                     'Authorization': `Bearer ${apiKey}`,
                     'Content-Type': 'application/json',
-                    'HTTP-Referer': GITHUB_REPO_URL, // Recommended for OpenRouter tracking
                     'X-Title': EXTENSION_NAME,     // Recommended for OpenRouter tracking
                 },
                 body: JSON.stringify(requestBody)
